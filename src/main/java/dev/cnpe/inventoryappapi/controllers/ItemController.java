@@ -4,6 +4,7 @@ import dev.cnpe.inventoryappapi.domain.dtos.ItemCreateDTO;
 import dev.cnpe.inventoryappapi.domain.dtos.ItemResponseDTO;
 import dev.cnpe.inventoryappapi.domain.dtos.ItemSummaryDTO;
 import dev.cnpe.inventoryappapi.services.ItemService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +21,7 @@ public class ItemController {
 
   @PostMapping
   public ResponseEntity<ItemResponseDTO> createItem(
-          @RequestBody ItemCreateDTO itemCreateDTO) {
+          @Valid @RequestBody ItemCreateDTO itemCreateDTO) {
 
     ItemResponseDTO createdItemDto = itemService.createItem(itemCreateDTO);
     return new ResponseEntity<>(createdItemDto, HttpStatus.CREATED);
