@@ -36,9 +36,9 @@ public class CategoryServiceDefault implements CategoryService {
   }
 
   @Override
-  public Page<CategorySummary> findAllCategories(Pageable pageable) {
+  public Page<CategoryResponse> findAllCategories(Pageable pageable) {
     Page<Category> categoriesPage = categoryRepository.findAll(pageable);
-    return categoriesPage.map(categoryMapper::toSummaryDTO);
+    return categoriesPage.map(categoryMapper::toResponseDTO);
   }
 
   @Override
@@ -68,4 +68,6 @@ public class CategoryServiceDefault implements CategoryService {
   public void deleteCategoryById(Long id) {
     categoryRepository.deleteById(id);
   }
+
+
 }

@@ -16,5 +16,5 @@ public class CategoryResponse {
 
   private String url;
 
-  private Set<ItemSummary> categoryItems;
+  private Integer items;
 }

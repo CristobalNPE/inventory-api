@@ -3,9 +3,11 @@ package dev.cnpe.inventoryappapi.services.impl;
 import dev.cnpe.inventoryappapi.domain.dtos.ItemRequest;
 import dev.cnpe.inventoryappapi.domain.dtos.ItemResponse;
 import dev.cnpe.inventoryappapi.domain.dtos.ItemSummary;
+import dev.cnpe.inventoryappapi.domain.entities.Category;
 import dev.cnpe.inventoryappapi.domain.entities.Item;
 import dev.cnpe.inventoryappapi.exceptions.ResourceWithIdNotFoundException;
 import dev.cnpe.inventoryappapi.mappers.ItemMapper;
+import dev.cnpe.inventoryappapi.repositories.CategoryRepository;
 import dev.cnpe.inventoryappapi.repositories.ItemRepository;
 import dev.cnpe.inventoryappapi.services.ItemService;
 import jakarta.transaction.Transactional;
@@ -14,7 +16,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -22,6 +28,7 @@ import java.util.Optional;
 public class ItemServiceDefault implements ItemService {
 
   private final ItemRepository itemRepository;
+  private final CategoryRepository categoryRepository;
   private final ItemMapper itemMapper;
 
   @Override
@@ -34,8 +41,13 @@ public class ItemServiceDefault implements ItemService {
   public ItemResponse createItem(ItemRequest itemRequest) {
     Item savedItem = itemRepository.save(itemMapper.toEntity(itemRequest));
     savedItem.setUrl("/api/items/" + savedItem.getId());
+
+    Set<Category> itemCategories =
+            mapToExistentCategories(itemRequest.getCategories());
+    savedItem.setCategories(itemCategories);
     return itemMapper.toResponseDTO(savedItem);
   }
+
 
   @Override
   public ItemResponse findItemById(Long id) {
@@ -59,6 +71,11 @@ public class ItemServiceDefault implements ItemService {
                       .ifPresent(existingItem::setPrice);
               Optional.ofNullable(itemRequest.getInitialStock())
                       .ifPresent(existingItem::setStock);
+
+              Set<Category> updatedCategories = //Is this ok?
+                      mapToExistentCategories(itemRequest.getCategories());
+              existingItem.setCategories(updatedCategories);
+
               Item updatedEntity = itemRepository.save(existingItem);
               return itemMapper.toResponseDTO(updatedEntity);
             }).orElseThrow(() -> new ResourceWithIdNotFoundException(id));
@@ -68,6 +85,18 @@ public class ItemServiceDefault implements ItemService {
   @Override
   public void deleteItemById(Long id) {
     itemRepository.deleteById(id);
+  }
+
+  private Set<Category> mapToExistentCategories(Set<String> categories) {
+
+    if (Objects.isNull(categories)) {
+      return new HashSet<>();
+    }
+    return categories.stream()
+            .map(categoryRepository::findByName)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.toSet());
   }
 
 }

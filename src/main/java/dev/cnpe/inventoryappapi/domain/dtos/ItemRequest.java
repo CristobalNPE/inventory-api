@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.Set;
 
 @Data
 @Builder
@@ -22,7 +23,7 @@ public class ItemRequest {
   // service, we should check that the categories exist.
   // Then assign the item to those categories.
 
-  // private Set<String> categories;
+  private Set<String> categories;
 
   @NotNull(message = "Must indicate an initial stock number")
   @Min(value = 0, message = "Initial stock must be at least 0")

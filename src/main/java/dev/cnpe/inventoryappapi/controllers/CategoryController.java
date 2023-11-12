@@ -28,7 +28,7 @@ public class CategoryController {
   }
 
   @GetMapping
-  public Page<CategorySummary> getAllCategories(Pageable pageable) {
+  public Page<CategoryResponse> getAllCategories(Pageable pageable) {
     return categoryService.findAllCategories(pageable);
   }
 
