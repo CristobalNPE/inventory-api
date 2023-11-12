@@ -1,8 +1,10 @@
 package dev.cnpe.inventoryappapi.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -27,7 +29,7 @@ public class Category {
   private String url;
 
   @ManyToMany(mappedBy = "categories")
-  private Set<Item> categoryItems;
+  private Set<Item> categoryItems = new HashSet<>();
 
 
 }

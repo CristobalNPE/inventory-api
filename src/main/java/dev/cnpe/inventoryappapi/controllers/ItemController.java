@@ -1,8 +1,8 @@
 package dev.cnpe.inventoryappapi.controllers;
 
-import dev.cnpe.inventoryappapi.domain.dtos.ItemCreateDTO;
-import dev.cnpe.inventoryappapi.domain.dtos.ItemResponseDTO;
-import dev.cnpe.inventoryappapi.domain.dtos.ItemSummaryDTO;
+import dev.cnpe.inventoryappapi.domain.dtos.ItemRequest;
+import dev.cnpe.inventoryappapi.domain.dtos.ItemResponse;
+import dev.cnpe.inventoryappapi.domain.dtos.ItemSummary;
 import dev.cnpe.inventoryappapi.services.ItemService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,33 +20,33 @@ public class ItemController {
   private final ItemService itemService;
 
   @PostMapping
-  public ResponseEntity<ItemResponseDTO> createItem(
-          @Valid @RequestBody ItemCreateDTO itemCreateDTO) {
+  public ResponseEntity<ItemResponse> createItem(
+          @Valid @RequestBody ItemRequest itemRequest) {
 
-    ItemResponseDTO createdItemDto = itemService.createItem(itemCreateDTO);
+    ItemResponse createdItemDto = itemService.createItem(itemRequest);
     return new ResponseEntity<>(createdItemDto, HttpStatus.CREATED);
 
   }
 
   @GetMapping
-  public Page<ItemSummaryDTO> getAllItems(Pageable pageable) {
+  public Page<ItemSummary> getAllItems(Pageable pageable) {
     return itemService.findAllItems(pageable);
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<ItemResponseDTO> getItemById(
+  public ResponseEntity<ItemResponse> getItemById(
           @PathVariable(name = "id") Long id) {
 
-    ItemResponseDTO foundItem = itemService.findItemById(id);
+    ItemResponse foundItem = itemService.findItemById(id);
     return new ResponseEntity<>(foundItem, HttpStatus.OK);
 
   }
 
   @PatchMapping("/{id}")
-  public ResponseEntity<ItemResponseDTO> updateItem(
+  public ResponseEntity<ItemResponse> updateItem(
           @PathVariable(name = "id") Long id,
-          @Valid @RequestBody ItemCreateDTO itemCreateDTO) {
-    ItemResponseDTO updated = itemService.updateItemOnId(id, itemCreateDTO);
+          @Valid @RequestBody ItemRequest itemRequest) {
+    ItemResponse updated = itemService.updateItemOnId(id, itemRequest);
     return new ResponseEntity<>(updated, HttpStatus.OK);
 
   }
@@ -56,5 +56,7 @@ public class ItemController {
     itemService.deleteItemById(id);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
+
+
 
 }

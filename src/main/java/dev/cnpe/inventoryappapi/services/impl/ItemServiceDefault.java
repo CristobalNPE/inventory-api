@@ -1,8 +1,8 @@
 package dev.cnpe.inventoryappapi.services.impl;
 
-import dev.cnpe.inventoryappapi.domain.dtos.ItemCreateDTO;
-import dev.cnpe.inventoryappapi.domain.dtos.ItemResponseDTO;
-import dev.cnpe.inventoryappapi.domain.dtos.ItemSummaryDTO;
+import dev.cnpe.inventoryappapi.domain.dtos.ItemRequest;
+import dev.cnpe.inventoryappapi.domain.dtos.ItemResponse;
+import dev.cnpe.inventoryappapi.domain.dtos.ItemSummary;
 import dev.cnpe.inventoryappapi.domain.entities.Item;
 import dev.cnpe.inventoryappapi.exceptions.ResourceWithIdNotFoundException;
 import dev.cnpe.inventoryappapi.mappers.ItemMapper;
@@ -25,20 +25,20 @@ public class ItemServiceDefault implements ItemService {
   private final ItemMapper itemMapper;
 
   @Override
-  public Page<ItemSummaryDTO> findAllItems(Pageable pageable) {
+  public Page<ItemSummary> findAllItems(Pageable pageable) {
     Page<Item> itemsPage = itemRepository.findAll(pageable);
     return itemsPage.map(itemMapper::toSummaryDTO);
   }
 
   @Override
-  public ItemResponseDTO createItem(ItemCreateDTO itemCreateDTO) {
-    Item savedItem = itemRepository.save(itemMapper.toEntity(itemCreateDTO));
+  public ItemResponse createItem(ItemRequest itemRequest) {
+    Item savedItem = itemRepository.save(itemMapper.toEntity(itemRequest));
     savedItem.setUrl("/api/items/" + savedItem.getId());
     return itemMapper.toResponseDTO(savedItem);
   }
 
   @Override
-  public ItemResponseDTO findItemById(Long id) {
+  public ItemResponse findItemById(Long id) {
     Item item = itemRepository
             .findById(id)
             .orElseThrow(() -> new ResourceWithIdNotFoundException(id));
@@ -47,22 +47,21 @@ public class ItemServiceDefault implements ItemService {
   }
 
   @Override
-  public ItemResponseDTO updateItemOnId(Long id, ItemCreateDTO itemCreateDTO) {
+  public ItemResponse updateItemOnId(Long id, ItemRequest itemRequest) {
 
     return itemRepository.findById(id)
             .map(existingItem -> {
-              Optional.ofNullable(itemCreateDTO.getName())
+              Optional.ofNullable(itemRequest.getName())
                       .ifPresent(existingItem::setName);
-              Optional.ofNullable(itemCreateDTO.getDescription())
+              Optional.ofNullable(itemRequest.getDescription())
                       .ifPresent(existingItem::setDescription);
-              Optional.ofNullable(itemCreateDTO.getPrice())
+              Optional.ofNullable(itemRequest.getPrice())
                       .ifPresent(existingItem::setPrice);
-              Optional.ofNullable(itemCreateDTO.getInitialStock())
+              Optional.ofNullable(itemRequest.getInitialStock())
                       .ifPresent(existingItem::setStock);
               Item updatedEntity = itemRepository.save(existingItem);
               return itemMapper.toResponseDTO(updatedEntity);
             }).orElseThrow(() -> new ResourceWithIdNotFoundException(id));
-
 
   }
 
@@ -70,6 +69,5 @@ public class ItemServiceDefault implements ItemService {
   public void deleteItemById(Long id) {
     itemRepository.deleteById(id);
   }
-
 
 }

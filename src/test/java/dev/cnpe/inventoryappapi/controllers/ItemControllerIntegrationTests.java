@@ -1,8 +1,8 @@
 package dev.cnpe.inventoryappapi.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.cnpe.inventoryappapi.domain.dtos.ItemCreateDTO;
-import dev.cnpe.inventoryappapi.domain.dtos.ItemResponseDTO;
+import dev.cnpe.inventoryappapi.domain.dtos.ItemRequest;
+import dev.cnpe.inventoryappapi.domain.dtos.ItemResponse;
 import dev.cnpe.inventoryappapi.services.ItemService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,6 +19,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static dev.cnpe.inventoryappapi.TestDataUtil.generateTestItemCreateDTO;
 import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @SpringBootTest
@@ -44,15 +46,15 @@ public class ItemControllerIntegrationTests {
            when successful.
           """)
   void createItemShouldReturn201() throws Exception {
-    ItemCreateDTO itemCreateDTO = generateTestItemCreateDTO();
-    String createItemJSON = objectMapper.writeValueAsString(itemCreateDTO);
+    ItemRequest itemRequest = generateTestItemCreateDTO();
+    String createItemJSON = objectMapper.writeValueAsString(itemRequest);
 
     mockMvc.perform(
-            MockMvcRequestBuilders.post("/api/items")
+            post("/api/items")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(createItemJSON)
     ).andExpect(
-            MockMvcResultMatchers.status().isCreated()
+            status().isCreated()
     );
 
   }
@@ -62,21 +64,21 @@ public class ItemControllerIntegrationTests {
           createItem endpoint should return the saved Item when successful
           """)
   void createItemReturnsCreatedItem() throws Exception {
-    ItemCreateDTO itemCreateDTO = generateTestItemCreateDTO();
-    String createItemJSON = objectMapper.writeValueAsString(itemCreateDTO);
+    ItemRequest itemRequest = generateTestItemCreateDTO();
+    String createItemJSON = objectMapper.writeValueAsString(itemRequest);
 
     mockMvc.perform(
-            MockMvcRequestBuilders.post("/api/items")
+            post("/api/items")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(createItemJSON)
     ).andExpect(
-            jsonPath("$.name").value(itemCreateDTO.getName())
+            jsonPath("$.name").value(itemRequest.getName())
     ).andExpect(
-            jsonPath("$.description").value(itemCreateDTO.getDescription())
+            jsonPath("$.description").value(itemRequest.getDescription())
     ).andExpect(
-            jsonPath("$.stock").value(itemCreateDTO.getInitialStock())
+            jsonPath("$.stock").value(itemRequest.getInitialStock())
     ).andExpect(
-            jsonPath("$.price").value(itemCreateDTO.getPrice())
+            jsonPath("$.price").value(itemRequest.getPrice())
     );
   }
 
@@ -88,11 +90,11 @@ public class ItemControllerIntegrationTests {
   void emptyJSONShouldReturn400() throws Exception {
 
     mockMvc.perform(
-            MockMvcRequestBuilders.post("/api/items")
+            post("/api/items")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("{}")
     ).andExpect(
-            MockMvcResultMatchers.status().isBadRequest()
+            status().isBadRequest()
     );
 
   }
@@ -103,16 +105,16 @@ public class ItemControllerIntegrationTests {
            HTTPStatus code 400 BAD REQUEST
           """)
   void notValidJSONShouldReturn400() throws Exception {
-    ItemCreateDTO itemCreateDTO = generateTestItemCreateDTO();
-    itemCreateDTO.setName(""); // Empty name should not be validated
-    String createItemJSON = objectMapper.writeValueAsString(itemCreateDTO);
+    ItemRequest itemRequest = generateTestItemCreateDTO();
+    itemRequest.setName(""); // Empty name should not be valid
+    String createItemJSON = objectMapper.writeValueAsString(itemRequest);
 
     mockMvc.perform(
-            MockMvcRequestBuilders.post("/api/items")
+            post("/api/items")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(createItemJSON)
     ).andExpect(
-            MockMvcResultMatchers.status().isBadRequest()
+            status().isBadRequest()
     );
 
   }
@@ -123,23 +125,23 @@ public class ItemControllerIntegrationTests {
   @Test
   void getAllItemsShouldReturn200() throws Exception {
     mockMvc.perform(
-            MockMvcRequestBuilders.get("/api/items")
+            get("/api/items")
                     .contentType(MediaType.APPLICATION_JSON)
 
     ).andExpect(
-            MockMvcResultMatchers.status().isOk()
+            status().isOk()
     );
   }
 
   @Test
   @DisplayName("""
-          getAllItems endpoint should return a List with items when successful
+          getAllItems endpoint should return a Page with items when successful
           """)
-  void getAllItemsShouldReturnListOfItems() throws Exception {
-    ItemCreateDTO itemCreateDTO = generateTestItemCreateDTO();
-    itemService.createItem(itemCreateDTO);
+  void getAllItemsShouldReturnPageOfItems() throws Exception {
+    ItemRequest itemRequest = generateTestItemCreateDTO();
+    itemService.createItem(itemRequest);
 
-    mockMvc.perform(MockMvcRequestBuilders.get("/api/items")
+    mockMvc.perform(get("/api/items")
                     .contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.content", hasSize(1)));
   }
@@ -150,15 +152,15 @@ public class ItemControllerIntegrationTests {
           """)
   @Test
   void getItemByIdShouldReturn200() throws Exception {
-    ItemCreateDTO itemCreateDTO = generateTestItemCreateDTO();
-    ItemResponseDTO savedItem = itemService.createItem(itemCreateDTO);
+    ItemRequest itemRequest = generateTestItemCreateDTO();
+    ItemResponse savedItem = itemService.createItem(itemRequest);
 
     mockMvc.perform(
-            MockMvcRequestBuilders.get("/api/items/" + savedItem.getId())
+            get("/api/items/" + savedItem.getId())
                     .contentType(MediaType.APPLICATION_JSON)
 
     ).andExpect(
-            MockMvcResultMatchers.status().isOk()
+            status().isOk()
     );
   }
 
@@ -168,15 +170,15 @@ public class ItemControllerIntegrationTests {
            when successful
           """)
   void getItemByIdShouldReturnCorrectItem() throws Exception {
-    ItemCreateDTO itemCreateDTO = generateTestItemCreateDTO();
-    ItemResponseDTO savedItem = itemService.createItem(itemCreateDTO);
+    ItemRequest itemRequest = generateTestItemCreateDTO();
+    ItemResponse savedItem = itemService.createItem(itemRequest);
 
-    mockMvc.perform(MockMvcRequestBuilders.get("/api/items/" + savedItem.getId())
+    mockMvc.perform(get("/api/items/" + savedItem.getId())
                     .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.name").value(itemCreateDTO.getName()))
-            .andExpect(jsonPath("$.description").value(itemCreateDTO.getDescription()))
-            .andExpect(jsonPath("$.stock").value(itemCreateDTO.getInitialStock()))
-            .andExpect(jsonPath("$.price").value(itemCreateDTO.getPrice()));
+            .andExpect(jsonPath("$.name").value(itemRequest.getName()))
+            .andExpect(jsonPath("$.description").value(itemRequest.getDescription()))
+            .andExpect(jsonPath("$.stock").value(itemRequest.getInitialStock()))
+            .andExpect(jsonPath("$.price").value(itemRequest.getPrice()));
 
   }
 
@@ -188,11 +190,11 @@ public class ItemControllerIntegrationTests {
   void getItemByIdShouldReturn404ifNoExists() throws Exception {
 
     mockMvc.perform(
-            MockMvcRequestBuilders.get("/api/items/" + "99")
+            get("/api/items/" + "99")
                     .contentType(MediaType.APPLICATION_JSON)
 
     ).andExpect(
-            MockMvcResultMatchers.status().isNotFound()
+            status().isNotFound()
     );
   }
 
@@ -202,18 +204,18 @@ public class ItemControllerIntegrationTests {
            successful.
           """)
   void updateItemShouldReturn200() throws Exception {
-    ItemCreateDTO itemCreateDTO = generateTestItemCreateDTO();
-    ItemResponseDTO savedItem = itemService.createItem(itemCreateDTO);
+    ItemRequest itemRequest = generateTestItemCreateDTO();
+    ItemResponse savedItem = itemService.createItem(itemRequest);
 
-    ItemCreateDTO updateRequest = generateTestItemCreateDTO();
+    ItemRequest updateRequest = generateTestItemCreateDTO();
     updateRequest.setName("Updated"); //We make a change
     String itemUpdateJSON = objectMapper.writeValueAsString(updateRequest);
 
-    mockMvc.perform(MockMvcRequestBuilders.patch("/api/items/" + savedItem.getId())
+    mockMvc.perform(patch("/api/items/" + savedItem.getId())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(itemUpdateJSON))
 
-            .andExpect(MockMvcResultMatchers.status().isOk());
+            .andExpect(status().isOk());
 
 
   }
@@ -225,14 +227,14 @@ public class ItemControllerIntegrationTests {
            ID provided does not exist.
           """)
   void updateItemShouldReturn404IfNoExist() throws Exception {
-    ItemCreateDTO updateRequest = generateTestItemCreateDTO();
+    ItemRequest updateRequest = generateTestItemCreateDTO();
     String itemUpdateJSON = objectMapper.writeValueAsString(updateRequest);
 
-    mockMvc.perform(MockMvcRequestBuilders.patch("/api/items/" + "999")
+    mockMvc.perform(patch("/api/items/" + "999")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(itemUpdateJSON))
 
-            .andExpect(MockMvcResultMatchers.status().isNotFound());
+            .andExpect(status().isNotFound());
   }
 
 
@@ -241,21 +243,21 @@ public class ItemControllerIntegrationTests {
           updateItemOnId endpoint should update and return the updated item
           """)
   void updateItemShouldReturnUpdatedItem() throws Exception {
-    ItemCreateDTO itemCreateDTO = generateTestItemCreateDTO();
-    ItemResponseDTO savedItem = itemService.createItem(itemCreateDTO);
+    ItemRequest itemRequest = generateTestItemCreateDTO();
+    ItemResponse savedItem = itemService.createItem(itemRequest);
 
-    ItemCreateDTO updateRequest = generateTestItemCreateDTO();
+    ItemRequest updateRequest = generateTestItemCreateDTO();
     updateRequest.setName("Updated"); //We make a change
     String itemUpdateJSON = objectMapper.writeValueAsString(updateRequest);
 
-    mockMvc.perform(MockMvcRequestBuilders.patch("/api/items/" + savedItem.getId())
+    mockMvc.perform(patch("/api/items/" + savedItem.getId())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(itemUpdateJSON))
 
             .andExpect(jsonPath("$.name").value("Updated"))
-            .andExpect(jsonPath("$.description").value(itemCreateDTO.getDescription()))
-            .andExpect(jsonPath("$.stock").value(itemCreateDTO.getInitialStock()))
-            .andExpect(jsonPath("$.price").value(itemCreateDTO.getPrice()));
+            .andExpect(jsonPath("$.description").value(itemRequest.getDescription()))
+            .andExpect(jsonPath("$.stock").value(itemRequest.getInitialStock()))
+            .andExpect(jsonPath("$.price").value(itemRequest.getPrice()));
 
 
   }
@@ -266,12 +268,12 @@ public class ItemControllerIntegrationTests {
            ID provided exists.
           """)
   void deleteItemShouldReturn204IdExists() throws Exception {
-    ItemCreateDTO itemCreateDTO = generateTestItemCreateDTO();
-    ItemResponseDTO savedItem = itemService.createItem(itemCreateDTO);
+    ItemRequest itemRequest = generateTestItemCreateDTO();
+    ItemResponse savedItem = itemService.createItem(itemRequest);
 
-    mockMvc.perform(MockMvcRequestBuilders.delete("/api/items/" + savedItem.getId())
+    mockMvc.perform(delete("/api/items/" + savedItem.getId())
                     .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.status().isNoContent());
+            .andExpect(status().isNoContent());
   }
 
   @Test
@@ -281,9 +283,9 @@ public class ItemControllerIntegrationTests {
           """)
   void deleteItemShouldReturn204NoIdExists() throws Exception {
 
-    mockMvc.perform(MockMvcRequestBuilders.delete("/api/items/" + "990")
+    mockMvc.perform(delete("/api/items/" + "990")
                     .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.status().isNoContent());
+            .andExpect(status().isNoContent());
   }
 
 
@@ -292,14 +294,14 @@ public class ItemControllerIntegrationTests {
           deleteItem endpoint should delete the item if it exists for provided id
           """)
   void deleteItemShouldDelete() throws Exception {
-    ItemCreateDTO itemCreateDTO = generateTestItemCreateDTO();
-    ItemResponseDTO savedItem = itemService.createItem(itemCreateDTO);
+    ItemRequest itemRequest = generateTestItemCreateDTO();
+    ItemResponse savedItem = itemService.createItem(itemRequest);
 
     itemService.deleteItemById(savedItem.getId());
 
-    mockMvc.perform(MockMvcRequestBuilders.get("/api/items/" + savedItem.getId())
+    mockMvc.perform(get("/api/items/" + savedItem.getId())
                     .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.status().isNotFound());
+            .andExpect(status().isNotFound());
 
 
   }

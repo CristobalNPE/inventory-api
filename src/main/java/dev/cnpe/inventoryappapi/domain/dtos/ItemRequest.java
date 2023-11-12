@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 
 @Data
 @Builder
-public class ItemCreateDTO {
+public class ItemRequest {
 
   @NotBlank(message = "Name cannot be empty")
   @Size(min = 3, max = 20, message = "Name must be between 3 and 20 characters")
@@ -17,7 +17,12 @@ public class ItemCreateDTO {
   @NotBlank(message = "Description cannot be empty")
   private String description;
 
-//  private Set<String> categories;
+  // Categories should be strings.
+  // Once received in the controller and handed to the
+  // service, we should check that the categories exist.
+  // Then assign the item to those categories.
+
+  // private Set<String> categories;
 
   @NotNull(message = "Must indicate an initial stock number")
   @Min(value = 0, message = "Initial stock must be at least 0")

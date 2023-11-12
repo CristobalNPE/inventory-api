@@ -1,19 +1,19 @@
 package dev.cnpe.inventoryappapi.services;
 
-import dev.cnpe.inventoryappapi.domain.dtos.ItemCreateDTO;
-import dev.cnpe.inventoryappapi.domain.dtos.ItemResponseDTO;
-import dev.cnpe.inventoryappapi.domain.dtos.ItemSummaryDTO;
+import dev.cnpe.inventoryappapi.domain.dtos.ItemRequest;
+import dev.cnpe.inventoryappapi.domain.dtos.ItemResponse;
+import dev.cnpe.inventoryappapi.domain.dtos.ItemSummary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface ItemService {
-  Page<ItemSummaryDTO> findAllItems(Pageable pageable);
+  Page<ItemSummary> findAllItems(Pageable pageable);
 
-  ItemResponseDTO createItem(ItemCreateDTO itemCreateDTO);
+  ItemResponse createItem(ItemRequest itemRequest);
 
-  ItemResponseDTO findItemById(Long id);
+  ItemResponse findItemById(Long id);
 
-  ItemResponseDTO updateItemOnId(Long id, ItemCreateDTO itemCreateDTO);
+  ItemResponse updateItemOnId(Long id, ItemRequest itemRequest);
 
   void deleteItemById(Long id);
 }
