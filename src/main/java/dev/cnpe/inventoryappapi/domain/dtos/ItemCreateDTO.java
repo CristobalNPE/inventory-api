@@ -23,7 +23,7 @@ public class ItemCreateDTO {
   @Min(value = 0, message = "Initial stock must be at least 0")
   private Integer initialStock;
 
-  @NotNull
+  @NotNull(message = "Must indicate a price")
   @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")
   private BigDecimal price;
 

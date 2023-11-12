@@ -14,6 +14,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -43,4 +45,31 @@ public class ItemServiceDefault implements ItemService {
 
     return itemMapper.toResponseDTO(item);
   }
+
+  @Override
+  public ItemResponseDTO updateItemOnId(Long id, ItemCreateDTO itemCreateDTO) {
+
+    return itemRepository.findById(id)
+            .map(existingItem -> {
+              Optional.ofNullable(itemCreateDTO.getName())
+                      .ifPresent(existingItem::setName);
+              Optional.ofNullable(itemCreateDTO.getDescription())
+                      .ifPresent(existingItem::setDescription);
+              Optional.ofNullable(itemCreateDTO.getPrice())
+                      .ifPresent(existingItem::setPrice);
+              Optional.ofNullable(itemCreateDTO.getInitialStock())
+                      .ifPresent(existingItem::setStock);
+              Item updatedEntity = itemRepository.save(existingItem);
+              return itemMapper.toResponseDTO(updatedEntity);
+            }).orElseThrow(() -> new ResourceWithIdNotFoundException(id));
+
+
+  }
+
+  @Override
+  public void deleteItemById(Long id) {
+    itemRepository.deleteById(id);
+  }
+
+
 }

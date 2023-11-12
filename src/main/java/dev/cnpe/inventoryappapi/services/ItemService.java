@@ -12,4 +12,8 @@ public interface ItemService {
   ItemResponseDTO createItem(ItemCreateDTO itemCreateDTO);
 
   ItemResponseDTO findItemById(Long id);
+
+  ItemResponseDTO updateItemOnId(Long id, ItemCreateDTO itemCreateDTO);
+
+  void deleteItemById(Long id);
 }

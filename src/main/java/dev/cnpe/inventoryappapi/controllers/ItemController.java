@@ -35,12 +35,26 @@ public class ItemController {
 
   @GetMapping("/{id}")
   public ResponseEntity<ItemResponseDTO> getItemById(
-          @PathVariable(name = "id") Long id){
+          @PathVariable(name = "id") Long id) {
 
     ItemResponseDTO foundItem = itemService.findItemById(id);
+    return new ResponseEntity<>(foundItem, HttpStatus.OK);
 
-    return new ResponseEntity<>(foundItem,HttpStatus.OK);
+  }
 
+  @PatchMapping("/{id}")
+  public ResponseEntity<ItemResponseDTO> updateItem(
+          @PathVariable(name = "id") Long id,
+          @Valid @RequestBody ItemCreateDTO itemCreateDTO) {
+    ItemResponseDTO updated = itemService.updateItemOnId(id, itemCreateDTO);
+    return new ResponseEntity<>(updated, HttpStatus.OK);
+
+  }
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> deleteItem(@PathVariable(name = "id") Long id) {
+    itemService.deleteItemById(id);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
 }
