@@ -84,7 +84,12 @@ public class ItemServiceDefault implements ItemService {
 
   @Override
   public void deleteItemById(Long id) {
-    itemRepository.deleteById(id);
+    Item item = itemRepository
+            .findById(id)
+            .orElseThrow(() -> new ResourceWithIdNotFoundException(id));
+
+    item.removeCategoriesAssociation();
+    itemRepository.delete(item);
   }
 
   private Set<Category> mapToExistentCategories(Set<String> categories) {
