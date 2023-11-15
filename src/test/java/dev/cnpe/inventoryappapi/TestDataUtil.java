@@ -10,12 +10,21 @@ public final class TestDataUtil {
   private TestDataUtil() {
   }
 
-  public static ItemRequest generateTestItemCreateDTO() {
+  public static ItemRequest generateTestItemRequest() {
     return ItemRequest.builder()
             .name("TEST ITEM 1")
             .description("TEST ITEM 1 DESCRIPTION")
-            .initialStock(999)
+            .initialStock(99)
             .price(new BigDecimal("99.9"))
+            .build();
+  }
+
+  public static ItemRequest generateTestItemRequest2() {
+    return ItemRequest.builder()
+            .name("TEST ITEM 2")
+            .description("TEST ITEM 2 DESCRIPTION")
+            .initialStock(999)
+            .price(new BigDecimal("999.9"))
             .build();
   }
 
@@ -23,6 +32,13 @@ public final class TestDataUtil {
     return CategoryRequest.builder()
             .name("TEST CATEGORY 1")
             .description("DESCRIPTION TEST CATEGORY 1")
+            .build();
+  }
+
+  public static CategoryRequest generateTestCategoryRequest2() {
+    return CategoryRequest.builder()
+            .name("TEST CATEGORY 2")
+            .description("DESCRIPTION TEST CATEGORY 2")
             .build();
   }
 
