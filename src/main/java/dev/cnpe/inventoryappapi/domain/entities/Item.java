@@ -28,7 +28,7 @@ public class Item {
 
   private Integer stock;
 
-  @ManyToMany
+  @ManyToMany(cascade = CascadeType.REMOVE)
   @JoinTable(
           name = "item_categories",
           joinColumns = @JoinColumn(name = "item_id"),
@@ -39,5 +39,12 @@ public class Item {
   private BigDecimal price;
 
   private String url;
+
+  public void removeCategoriesAssociation() {
+    for (Category category : categories) {
+      category.getCategoryItems().remove(this);
+    }
+    categories.clear();
+  }
 
 }

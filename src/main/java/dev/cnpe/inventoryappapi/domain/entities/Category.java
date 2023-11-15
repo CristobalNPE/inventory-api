@@ -31,5 +31,11 @@ public class Category {
   @ManyToMany(mappedBy = "categories")
   private Set<Item> categoryItems = new HashSet<>();
 
+  public void removeItemsAssociation() {
+    for (Item item : categoryItems) {
+      item.getCategories().remove(this);
+    }
+    categoryItems.clear();
+  }
 
 }
