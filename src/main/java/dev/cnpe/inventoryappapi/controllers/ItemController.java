@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/items")
 @RequiredArgsConstructor
+@CrossOrigin
 public class ItemController {
 
   private final ItemService itemService;
@@ -29,7 +31,8 @@ public class ItemController {
   }
 
   @GetMapping
-  public Page<ItemSummary> getAllItems(Pageable pageable) {
+  public Page<ItemSummary> getAllItems(
+          @PageableDefault(value = 10) Pageable pageable) {
     return itemService.findAllItems(pageable);
   }
 
@@ -56,7 +59,6 @@ public class ItemController {
     itemService.deleteItemById(id);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
-
 
 
 }
