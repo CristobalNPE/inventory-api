@@ -8,9 +8,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/categories")
@@ -28,8 +31,14 @@ public class CategoryController {
   }
 
   @GetMapping
-  public Page<CategoryResponse> getAllCategories(Pageable pageable) {
+  public Page<CategoryResponse> getAllCategoriesPaged(
+          @PageableDefault(value = 5) Pageable pageable) {
     return categoryService.findAllCategories(pageable);
+  }
+
+  @GetMapping("/all")
+  public List<CategorySummary> getAllCategories(){
+    return categoryService.findAllCategories();
   }
 
   @GetMapping("/{id}")

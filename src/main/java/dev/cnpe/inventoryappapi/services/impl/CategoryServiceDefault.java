@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -66,7 +67,19 @@ public class CategoryServiceDefault implements CategoryService {
 
   @Override
   public void deleteCategoryById(Long id) {
-    categoryRepository.deleteById(id);
+    Category category = categoryRepository.findById(id)
+            .orElseThrow(() -> new ResourceWithIdNotFoundException(id));
+    category.removeItemsAssociation();
+    categoryRepository.delete(category);
+  }
+
+  @Override
+  public List<CategorySummary> findAllCategories() {
+    return categoryRepository
+            .findAll()
+            .stream()
+            .map(categoryMapper::toSummaryDTO)
+            .toList();
   }
 
 
