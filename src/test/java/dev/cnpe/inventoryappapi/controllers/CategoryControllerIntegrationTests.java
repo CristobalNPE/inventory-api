@@ -3,8 +3,6 @@ package dev.cnpe.inventoryappapi.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.cnpe.inventoryappapi.domain.dtos.CategoryRequest;
 import dev.cnpe.inventoryappapi.domain.dtos.CategoryResponse;
-import dev.cnpe.inventoryappapi.domain.dtos.ItemRequest;
-import dev.cnpe.inventoryappapi.domain.dtos.ItemResponse;
 import dev.cnpe.inventoryappapi.services.CategoryService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,7 +16,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static dev.cnpe.inventoryappapi.TestDataUtil.generateTestCategoryRequest;
-import static dev.cnpe.inventoryappapi.TestDataUtil.generateTestItemCreateDTO;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -277,14 +274,14 @@ public class CategoryControllerIntegrationTests {
 
   @Test
   @DisplayName("""
-          deleteCategory endpoint should return HTTPStatus code 204 NO CONTENT
+          deleteCategory endpoint should return HTTPStatus code 404 NOT FOUND
            when ID provided does not exist.
           """)
   void deleteCategoryShouldReturn204NoIdExists() throws Exception {
 
     mockMvc.perform(delete("/api/categories/" + "990")
                     .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isNoContent());
+            .andExpect(status().isNotFound());
   }
 
 

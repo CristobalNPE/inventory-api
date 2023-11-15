@@ -14,14 +14,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import static dev.cnpe.inventoryappapi.TestDataUtil.generateTestItemCreateDTO;
+import static dev.cnpe.inventoryappapi.TestDataUtil.generateTestItemRequest;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -46,7 +44,7 @@ public class ItemControllerIntegrationTests {
            when successful.
           """)
   void createItemShouldReturn201() throws Exception {
-    ItemRequest itemRequest = generateTestItemCreateDTO();
+    ItemRequest itemRequest = generateTestItemRequest();
     String createItemJSON = objectMapper.writeValueAsString(itemRequest);
 
     mockMvc.perform(
@@ -64,7 +62,7 @@ public class ItemControllerIntegrationTests {
           createItem endpoint should return the saved Item when successful
           """)
   void createItemReturnsCreatedItem() throws Exception {
-    ItemRequest itemRequest = generateTestItemCreateDTO();
+    ItemRequest itemRequest = generateTestItemRequest();
     String createItemJSON = objectMapper.writeValueAsString(itemRequest);
 
     mockMvc.perform(
@@ -105,7 +103,7 @@ public class ItemControllerIntegrationTests {
            HTTPStatus code 400 BAD REQUEST
           """)
   void notValidJSONShouldReturn400() throws Exception {
-    ItemRequest itemRequest = generateTestItemCreateDTO();
+    ItemRequest itemRequest = generateTestItemRequest();
     itemRequest.setName(""); // Empty name should not be valid
     String createItemJSON = objectMapper.writeValueAsString(itemRequest);
 
@@ -138,7 +136,7 @@ public class ItemControllerIntegrationTests {
           getAllItems endpoint should return a Page with items when successful
           """)
   void getAllItemsShouldReturnPageOfItems() throws Exception {
-    ItemRequest itemRequest = generateTestItemCreateDTO();
+    ItemRequest itemRequest = generateTestItemRequest();
     itemService.createItem(itemRequest);
 
     mockMvc.perform(get("/api/items")
@@ -152,7 +150,7 @@ public class ItemControllerIntegrationTests {
           """)
   @Test
   void getItemByIdShouldReturn200() throws Exception {
-    ItemRequest itemRequest = generateTestItemCreateDTO();
+    ItemRequest itemRequest = generateTestItemRequest();
     ItemResponse savedItem = itemService.createItem(itemRequest);
 
     mockMvc.perform(
@@ -170,7 +168,7 @@ public class ItemControllerIntegrationTests {
            when successful
           """)
   void getItemByIdShouldReturnCorrectItem() throws Exception {
-    ItemRequest itemRequest = generateTestItemCreateDTO();
+    ItemRequest itemRequest = generateTestItemRequest();
     ItemResponse savedItem = itemService.createItem(itemRequest);
 
     mockMvc.perform(get("/api/items/" + savedItem.getId())
@@ -204,10 +202,10 @@ public class ItemControllerIntegrationTests {
            successful.
           """)
   void updateItemShouldReturn200() throws Exception {
-    ItemRequest itemRequest = generateTestItemCreateDTO();
+    ItemRequest itemRequest = generateTestItemRequest();
     ItemResponse savedItem = itemService.createItem(itemRequest);
 
-    ItemRequest updateRequest = generateTestItemCreateDTO();
+    ItemRequest updateRequest = generateTestItemRequest();
     updateRequest.setName("Updated"); //We make a change
     String itemUpdateJSON = objectMapper.writeValueAsString(updateRequest);
 
@@ -227,7 +225,7 @@ public class ItemControllerIntegrationTests {
            ID provided does not exist.
           """)
   void updateItemShouldReturn404IfNoExist() throws Exception {
-    ItemRequest updateRequest = generateTestItemCreateDTO();
+    ItemRequest updateRequest = generateTestItemRequest();
     String itemUpdateJSON = objectMapper.writeValueAsString(updateRequest);
 
     mockMvc.perform(patch("/api/items/" + "999")
@@ -243,10 +241,10 @@ public class ItemControllerIntegrationTests {
           updateItemOnId endpoint should update and return the updated item
           """)
   void updateItemShouldReturnUpdatedItem() throws Exception {
-    ItemRequest itemRequest = generateTestItemCreateDTO();
+    ItemRequest itemRequest = generateTestItemRequest();
     ItemResponse savedItem = itemService.createItem(itemRequest);
 
-    ItemRequest updateRequest = generateTestItemCreateDTO();
+    ItemRequest updateRequest = generateTestItemRequest();
     updateRequest.setName("Updated"); //We make a change
     String itemUpdateJSON = objectMapper.writeValueAsString(updateRequest);
 
@@ -268,7 +266,7 @@ public class ItemControllerIntegrationTests {
            ID provided exists.
           """)
   void deleteItemShouldReturn204IdExists() throws Exception {
-    ItemRequest itemRequest = generateTestItemCreateDTO();
+    ItemRequest itemRequest = generateTestItemRequest();
     ItemResponse savedItem = itemService.createItem(itemRequest);
 
     mockMvc.perform(delete("/api/items/" + savedItem.getId())
@@ -278,14 +276,14 @@ public class ItemControllerIntegrationTests {
 
   @Test
   @DisplayName("""
-          deleteItem endpoint should return HTTPStatus code 204 NO CONTENT when
+          deleteItem endpoint should return HTTPStatus code 404 NOT FOUND when
            ID provided does not exist.
           """)
   void deleteItemShouldReturn204NoIdExists() throws Exception {
 
     mockMvc.perform(delete("/api/items/" + "990")
                     .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isNoContent());
+            .andExpect(status().isNotFound());
   }
 
 
@@ -294,7 +292,7 @@ public class ItemControllerIntegrationTests {
           deleteItem endpoint should delete the item if it exists for provided id
           """)
   void deleteItemShouldDelete() throws Exception {
-    ItemRequest itemRequest = generateTestItemCreateDTO();
+    ItemRequest itemRequest = generateTestItemRequest();
     ItemResponse savedItem = itemService.createItem(itemRequest);
 
     itemService.deleteItemById(savedItem.getId());
